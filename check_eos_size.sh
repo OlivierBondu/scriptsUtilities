@@ -3,7 +3,7 @@
 # Written by O. Bondu (June 2013)
 
 #####
-echo "WARNING: script has to be SOURCE (source script.sh) for the eos commands to be recognized"
+echo "WARNING: script has to be SOURCED (source script.sh) for the eos commands to be recognized"
 totalBytes="0"
 
 #####
