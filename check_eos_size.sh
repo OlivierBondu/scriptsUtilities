@@ -8,50 +8,55 @@ totalBytes="0"
 
 #####
 function letsdothis {
-	if [[ -z ${1} ]]
+	if [[ -z ${2} ]]
 	then
 		return 1
 	fi
-	
-	folder=${1}
-	oldfolder=${2}
-	echo "checking folder ${folder}"
+
+	depth=${1}	
+	folder[${depth}]=${2}
+	oldfolder[${depth}]=${3}
+	echo "checking folder ${folder[${depth}]} (depth= ${depth})"
 	
 	#####
 	#echo "summing files in the directory"
-	totalfiles=$(
-	for file in `eos ls ${folder}`
+	totalfiles[${depth}]=$(
+	for file in `eos ls ${folder[${depth}]}`
 	do
 	#	echo ${file}
-		eos ls -l ${folder} | grep -x ".*${file}\>" | awk '{print $1}' | grep d &> /dev/null && continue
-		eos ls -l ${folder}/${file}
+		eos ls -l ${folder[${depth}]} | grep -x ".*${file}\>" | awk '{print $1}' | grep d &> /dev/null && continue
+		eos ls -l ${folder[${depth}]}/${file}
 	done | awk '{SUM+=$5} END{print SUM}'
 	)
-	if [[ ${totalfiles} = "" ]]
+	if [[ ${totalfiles[${depth}]} = "" ]]
 	then
-		totalfiles="0"
+		totalfiles[${depth}]="0"
 	fi
 	
-	totalfilesHR=`echo "${totalfiles}" | awk '{ sum=$1 ; hum[1024**5]="Pb";hum[1024**4]="Tb";hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**5; x>=1024; x/=1024){ if (sum>=x) { printf "%.2f %s\n",sum/x,hum[x];break } }}'`
-	echo -e "totalfiles=\t${totalfilesHR}\t(${totalfiles} bytes)"
+	totalfilesHR[${depth}]=`echo "${totalfiles[${depth}]}" | awk '{ sum=$1 ; hum[1024**5]="Pb";hum[1024**4]="Tb";hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**5; x>=1024; x/=1024){ if (sum>=x) { printf "%.2f %s\n",sum/x,hum[x];break } }}'`
+	echo -e "totalfiles[${depth}]=\t${totalfilesHR[${depth}]}\t(${totalfiles[${depth}]} bytes)"
 	
-	totalBytes=$(( ${totalfiles} + ${totalBytes} ))
+	totalBytes=$(( ${totalfiles[${depth}]} + ${totalBytes} ))
 	
 	#####
 	#echo "listing additional directories"
-	total="0"
-	for file in `eos ls ${folder}`
+#	total[${depth}]="0"
+	listdir[${depth}]=`eos ls ${folder[${depth}]}`
+	for file in `echo "${listdir[${depth}]}"`
 	do
 	#		echo ${folder}/${file}
-		  eos ls -l ${folder} | grep -x ".*${file}\>" | awk '{print $1}' | grep d &> /dev/null && letsdothis ${folder}/${file} ${folder}
+			depthNew=`echo "${depth} + 1" | bc -ql`
+		  eos ls -l ${folder[${depth}]} | grep -x ".*${file}\>" | awk '{print $1}' | grep d &> /dev/null && letsdothis ${depthNew} ${folder[${depth}]}/${file} ${folder[${depth}]} #&& echo -e "\t\t### END OF CALL letsdothis ${depthNew} ${folder[${depth}]}/${file} ${folder[${depth}]}"
+#			echo "depth= ${depth}"
 	done
 	
-	folder=${oldfolder}
+	folder[${depth}]=${oldfolder[${depth}]}
 	#echo "exiting function: folder= ${folder}"
-	return ${total}
+#	return ${total[${depth}]}
+	return 0
 }
 
-letsdothis ${1} ${1}
+letsdothis 0 ${1} ${1}
 
 ##### 
 totalBytesHR=`echo "${totalBytes}" | awk '{ sum=$1 ; hum[1024**5]="Pb";hum[1024**4]="Tb";hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**5; x>=1024; x/=1024){ if (sum>=x) { printf "%.2f %s\n",sum/x,hum[x];break } }}'`
