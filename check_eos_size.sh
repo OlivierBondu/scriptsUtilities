@@ -3,10 +3,11 @@
 # Written by O. Bondu (June 2013)
 
 #####
-echo -e "WARNING: script has to be SOURCED (source script.sh) for the eos commands to be recognized\n"
+#echo -e "WARNING: script has to be SOURCED (source script.sh) for the eos commands to be recognized\n"
 totalBytes="0"
 originalFolder=${1}
 dir=""
+eoscommand="/afs/cern.ch/project/eos/installation/0.2.31/bin/eos.select"
 
 #####
 # listdir
@@ -15,9 +16,9 @@ function listdir {
 	depth=${1}
 	folder=${2}	
 	echo "##### Listing depth ${depth} with folder ${folder}"
-	dirlist[${depth}]=`eos ls -l ${folder} | grep -e "^d" | awk '{print $9" "}' | awk '{printf $0}'`
-#	filelist[${depth}]=`eos ls -l ${folder} | grep -v -e "^d" | awk '{print $9" "}' | awk '{printf $0}'`
-	totalfiles[${depth}]=`eos ls -l ${folder} | grep -v -e "^d" | awk 'BEGIN{SUM=0} {SUM+=$5} END{print SUM}'`
+	dirlist[${depth}]=`${eoscommand} ls -l ${folder} | grep -e "^d" | awk '{print $9" "}' | awk '{printf $0}'`
+#	filelist[${depth}]=`${eoscommand} ls -l ${folder} | grep -v -e "^d" | awk '{print $9" "}' | awk '{printf $0}'`
+	totalfiles[${depth}]=`${eoscommand} ls -l ${folder} | grep -v -e "^d" | awk 'BEGIN{SUM=0} {SUM+=$5} END{print SUM}'`
 	totalfilesHR[${depth}]=`echo "${totalfiles[${depth}]}" | awk '{ sum=$1 ; hum[1024**5]="Pb";hum[1024**4]="Tb";hum[1024**3]="Gb";hum[1024**2]="Mb";hum[1024]="Kb"; for (x=1024**5; x>=1024; x/=1024){ if (sum>=x) { printf "%.2f %s\n",sum/x,hum[x];break } }}'`
 #	echo -e "\tdirlist[${depth}]= ${dirlist[${depth}]}"
 #	echo -e "\tfilelist[${depth}]= ${filelist[${depth}]}"
