@@ -9,7 +9,7 @@ fi
 newFolder=${1}
 mkdir ${newFolder}
 #for folder in `echo "eps gif pdf png C"`
-for folder in `echo "pdf root gif"`
+for folder in `echo "pdf root gif png"`
 do
 	mv ${folder}/ ${newFolder}/
 	mkdir ${folder}
