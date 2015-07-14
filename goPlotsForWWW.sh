@@ -14,6 +14,7 @@ for folder in `echo "pdf root gif png"`
 do
 	mv ${folder}/ ${newFolder}/
 	mkdir ${folder}
+  touch ${folder}/.keep
 done
 
 ##### PUT THE index.php IN THERE #####
